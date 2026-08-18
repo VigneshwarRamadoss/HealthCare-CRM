@@ -52,8 +52,8 @@ export const Navigation: React.FC<NavigationProps> = ({
       {/* Desktop Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <div className="brand-icon">
-            🦷
+          <div className="brand-icon" style={{ background: 'transparent', padding: 0 }}>
+            <img src="/favicon.png" alt="Logo" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} />
           </div>
           <div>
             <div className="brand-title">DotX</div>
