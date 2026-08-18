@@ -20,7 +20,7 @@ const AppContent: React.FC = () => {
   if (loading) {
     return (
       <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', color: '#0d9488', fontWeight: 600 }}>
-        Loading ApexDental CRM...
+        Loading DotX...
       </div>
     );
   }

@@ -56,7 +56,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             🦷
           </div>
           <div>
-            <div className="brand-title">ApexDental</div>
+            <div className="brand-title">DotX</div>
             <div className="brand-subtitle">{clinic?.name || 'Patient Follow-Up CRM'}</div>
           </div>
         </div>
