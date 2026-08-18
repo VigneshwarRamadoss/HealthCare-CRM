@@ -78,25 +78,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSelectPending, onOpenCal
 
       {/* Operational Metrics Cards */}
       <div className="metrics-grid">
-        <div className="metric-card" style={{ borderLeft: '4px solid #0d9488' }}>
+        <div className="metric-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="metric-label">Today's Visits</span>
-            <Calendar size={18} color="#0d9488" />
+            <Calendar size={18} color="#64748b" />
           </div>
           <div className="metric-value">{metrics.today_appointments}</div>
           <div className="metric-sub">Scheduled for today</div>
         </div>
 
-        <div className="metric-card" style={{ borderLeft: '4px solid #0284c7' }}>
+        <div className="metric-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="metric-label">Tomorrow's Visits</span>
-            <Clock size={18} color="#0284c7" />
+            <Clock size={18} color="#64748b" />
           </div>
           <div className="metric-value">{metrics.tomorrow_appointments}</div>
           <div className="metric-sub">Scheduled for tomorrow</div>
         </div>
 
-        <div className="metric-card" style={{ borderLeft: '4px solid #16a34a' }}>
+        <div className="metric-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="metric-label">Confirmed</span>
             <CheckCircle2 size={18} color="#16a34a" />
@@ -105,7 +105,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSelectPending, onOpenCal
           <div className="metric-sub">Patient confirmed attendance</div>
         </div>
 
-        <div className="metric-card" style={{ borderLeft: '4px solid #d97706' }}>
+        <div className="metric-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="metric-label">No Answer / Retry</span>
             <PhoneOff size={18} color="#d97706" />
@@ -114,7 +114,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSelectPending, onOpenCal
           <div className="metric-sub">Pending retry call</div>
         </div>
 
-        <div className="metric-card" style={{ borderLeft: '4px solid #4f46e5' }}>
+        <div className="metric-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="metric-label">Wants Reschedule</span>
             <RefreshCw size={18} color="#4f46e5" />
@@ -123,7 +123,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSelectPending, onOpenCal
           <div className="metric-sub">Needs new date/time</div>
         </div>
 
-        <div className="metric-card" style={{ borderLeft: '4px solid #dc2626' }}>
+        <div className="metric-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="metric-label">Pending Total</span>
             <AlertCircle size={18} color="#dc2626" />
@@ -134,11 +134,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSelectPending, onOpenCal
       </div>
 
       {/* Needs Attention Queue Section */}
-      <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <AlertCircle size={20} color="#0d9488" />
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <AlertCircle size={22} color="#dc2626" />
               Needs Attention Queue
             </h2>
             <p style={{ fontSize: 13, color: '#64748b' }}>

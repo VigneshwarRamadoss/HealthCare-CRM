@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   PhoneCall, 
   Phone, 
@@ -11,7 +11,8 @@ import {
   HelpCircle, 
   RefreshCw,
   UserCheck,
-  FileText
+  FileText,
+  Edit2
 } from 'lucide-react';
 import { api } from '../api/client';
 import { FollowUpTaskItem, InteractionOutcome } from '../types';
@@ -27,7 +28,7 @@ export const FollowUpQueue: React.FC<FollowUpQueueProps> = ({
   selectedTaskForCall,
   clearSelectedTaskForCall
 }) => {
-  const [tasks, setTasks] = useState<FollowUpTaskItem[]>([]);
+  const [allTasks, setAllTasks] = useState<FollowUpTaskItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeframeFilter, setTimeframeFilter] = useState<'all' | 'today' | 'tomorrow' | 'overdue'>('all');
 
@@ -40,10 +41,8 @@ export const FollowUpQueue: React.FC<FollowUpQueueProps> = ({
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const res = await api.getPendingFollowUps({
-        timeframe: timeframeFilter === 'all' ? undefined : timeframeFilter
-      });
-      setTasks(res);
+      const res = await api.getPendingFollowUps(); // Fetch all
+      setAllTasks(res);
     } catch (err) {
       console.error('Failed to load pending follow-ups:', err);
     } finally {
@@ -53,7 +52,43 @@ export const FollowUpQueue: React.FC<FollowUpQueueProps> = ({
 
   useEffect(() => {
     fetchTasks();
-  }, [timeframeFilter]);
+  }, []);
+
+  // Compute filtered tasks and counts client-side
+  const { filteredTasks, counts } = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    let cAll = 0, cToday = 0, cTomorrow = 0, cOverdue = 0;
+
+    const processed = allTasks.map(t => {
+      cAll++;
+      const aptDate = new Date(t.scheduled_at);
+      const aptDay = new Date(aptDate);
+      aptDay.setHours(0, 0, 0, 0);
+
+      let category = 'all';
+      if (aptDay.getTime() === today.getTime()) {
+        cToday++;
+        category = 'today';
+      } else if (aptDay.getTime() === tomorrow.getTime()) {
+        cTomorrow++;
+        category = 'tomorrow';
+      } else if (aptDay.getTime() < today.getTime()) {
+        cOverdue++;
+        category = 'overdue';
+      }
+
+      return { ...t, _category: category };
+    });
+
+    const filtered = processed.filter(t => timeframeFilter === 'all' || t._category === timeframeFilter);
+
+    return { filteredTasks: filtered, counts: { all: cAll, today: cToday, tomorrow: cTomorrow, overdue: cOverdue } };
+  }, [allTasks, timeframeFilter]);
+
 
   // Handle external call trigger (e.g. from Dashboard)
   useEffect(() => {
@@ -130,14 +165,14 @@ export const FollowUpQueue: React.FC<FollowUpQueueProps> = ({
     <div className="page-content">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Pending Follow-Ups Queue</h1>
+          <h1 className="page-title">Follow-Ups Queue</h1>
           <p className="page-description">
             Shared call queue for return visit confirmation and shift handover continuity
           </p>
         </div>
         <button className="btn-secondary" onClick={fetchTasks}>
           <RefreshCw size={16} />
-          <span>Refresh Queue</span>
+          <span>Refresh</span>
         </button>
       </div>
 
@@ -152,23 +187,34 @@ export const FollowUpQueue: React.FC<FollowUpQueueProps> = ({
               color: timeframeFilter === tab ? '#ffffff' : '#475569',
               borderColor: timeframeFilter === tab ? '#0d9488' : '#e2e8f0',
               fontWeight: 600,
-              textTransform: 'capitalize'
+              textTransform: 'capitalize',
+              display: 'flex',
+              gap: 6
             }}
             onClick={() => setTimeframeFilter(tab)}
           >
-            {tab === 'all' ? 'All Pending' : tab}
+            <span>{tab === 'all' ? 'All Pending' : tab}</span>
+            <span style={{ 
+              background: timeframeFilter === tab ? '#ffffff' : '#f1f5f9', 
+              color: timeframeFilter === tab ? '#0d9488' : '#64748b',
+              padding: '2px 6px',
+              borderRadius: 12,
+              fontSize: 12
+            }}>
+              {counts[tab]}
+            </span>
           </button>
         ))}
       </div>
 
-      {/* Work Queue List */}
+      {/* Work Queue Table Layout */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: 60, color: '#0d9488' }}>
           <RefreshCw className="animate-spin" size={24} style={{ margin: '0 auto 8px auto' }} />
           Loading follow-up queue...
         </div>
-      ) : tasks.length === 0 ? (
-        <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid #e2e8f0', padding: 40, textAlign: 'center' }}>
+      ) : filteredTasks.length === 0 ? (
+        <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 40, textAlign: 'center' }}>
           <CheckCircle2 size={48} color="#10b981" style={{ margin: '0 auto 12px auto' }} />
           <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>Work Queue Empty!</h3>
           <p style={{ fontSize: 14, color: '#64748b', marginTop: 4 }}>
@@ -176,54 +222,76 @@ export const FollowUpQueue: React.FC<FollowUpQueueProps> = ({
           </p>
         </div>
       ) : (
-        <div className="queue-list">
-          {tasks.map(task => (
-            <div key={task.task_id} className="queue-card">
-              <div className="patient-info-block">
-                <div className="patient-avatar">
-                  {task.patient_name.charAt(0)}
-                </div>
-                <div>
-                  <div className="patient-name">
-                    {task.patient_name}
-                    <span className={`badge ${
-                      task.task_status === 'RETRY' ? 'badge-retry' :
-                      task.task_status === 'RESCHEDULE_REQUIRED' ? 'badge-reschedule' :
-                      task.task_status === 'BLOCKED' ? 'badge-blocked' : 'badge-retry'
-                    }`}>
-                      {task.task_status === 'RETRY' ? 'Retry Needed' :
-                       task.task_status === 'RESCHEDULE_REQUIRED' ? 'Reschedule Requested' :
-                       task.task_status === 'BLOCKED' ? 'Wrong Number' : 'Pending Call'}
-                    </span>
-                  </div>
-                  <div className="patient-phone">
-                    📞 <strong style={{ color: '#0f172a' }}>{task.patient_phone}</strong> (Landline or Mobile)
-                    {task.patient_phone_status === 'INVALID' && (
-                      <span style={{ color: '#e11d48', fontWeight: 600, marginLeft: 8 }}>⚠️ Invalid Number</span>
-                    )}
-                  </div>
-                  <div className="apt-reason">
-                    <strong>Return Visit Reason:</strong> {task.reason} • <strong>Doctor:</strong> {task.provider_name}
-                  </div>
-                  {task.last_outcome && (
-                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, background: '#f8fafc', padding: '4px 8px', borderRadius: 6, display: 'inline-block' }}>
-                      Last attempt: <strong style={{ color: '#0f172a' }}>{task.last_outcome}</strong> by {task.last_called_by || 'Staff'} ({new Date(task.last_call_at!).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#0d9488' }}>
-                  Scheduled: {new Date(task.scheduled_at).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                </div>
-                <button className="call-action-btn" onClick={() => handleInitiateCall(task)}>
-                  <PhoneCall size={18} />
-                  <span>Call & Record Outcome</span>
-                </button>
-              </div>
-            </div>
-          ))}
+        <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 14 }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#64748b', fontSize: 13 }}>
+                <th style={{ padding: '16px 20px', fontWeight: 600 }}>Patient</th>
+                <th style={{ padding: '16px 20px', fontWeight: 600 }}>Visit Info</th>
+                <th style={{ padding: '16px 20px', fontWeight: 600 }}>Last Outcome</th>
+                <th style={{ padding: '16px 20px', fontWeight: 600 }}>Scheduled</th>
+                <th style={{ padding: '16px 20px', fontWeight: 600, textAlign: 'right' }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTasks.map(task => {
+                const isInvalidPhone = task.patient_phone_status === 'INVALID';
+                
+                return (
+                  <tr key={task.task_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'top' }}>
+                      <div style={{ fontWeight: 600, color: '#0f172a' }}>{task.patient_name}</div>
+                      <div style={{ color: '#475569', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                        {task.patient_phone}
+                        {isInvalidPhone && <AlertTriangle size={14} color="#e11d48" />}
+                      </div>
+                      <div style={{ marginTop: 6 }}>
+                        <span className={`badge ${
+                          task.task_status === 'RETRY' ? 'badge-retry' :
+                          task.task_status === 'RESCHEDULE_REQUIRED' ? 'badge-reschedule' :
+                          task.task_status === 'BLOCKED' ? 'badge-blocked' : 'badge-retry'
+                        }`}>
+                          {task.task_status === 'RETRY' ? 'Retry Needed' :
+                           task.task_status === 'RESCHEDULE_REQUIRED' ? 'Reschedule Req' :
+                           task.task_status === 'BLOCKED' ? 'Blocked' : 'Pending Call'}
+                        </span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'top', color: '#334155' }}>
+                      <div style={{ fontWeight: 500 }}>{task.reason}</div>
+                      <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Dr. {task.provider_name}</div>
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'top', color: '#475569', fontSize: 13 }}>
+                      {task.last_outcome ? (
+                        <>
+                          <div style={{ fontWeight: 500, color: '#0f172a' }}>{task.last_outcome}</div>
+                          <div style={{ marginTop: 2 }}>{new Date(task.last_call_at!).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                        </>
+                      ) : (
+                        <span style={{ color: '#94a3b8' }}>No previous attempt</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'top', fontWeight: 500, color: '#0d9488' }}>
+                      {new Date(task.scheduled_at).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                    <td style={{ padding: '16px 20px', verticalAlign: 'top', textAlign: 'right' }}>
+                      {isInvalidPhone ? (
+                        <button className="btn-secondary" style={{ color: '#e11d48', borderColor: '#fecdd3' }} onClick={() => alert("Navigate to patient details to update number.")}>
+                          <Edit2 size={16} />
+                          <span>Fix Number</span>
+                        </button>
+                      ) : (
+                        <button className="call-action-btn" onClick={() => handleInitiateCall(task)}>
+                          <PhoneCall size={16} />
+                          <span>Call Patient</span>
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -245,7 +313,7 @@ export const FollowUpQueue: React.FC<FollowUpQueueProps> = ({
             </div>
 
             <div className="modal-body">
-              <div style={{ background: '#f8fafc', padding: 14, borderRadius: 10, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+              <div style={{ background: '#f8fafc', padding: 14, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{activeCallTask.patient_name}</div>
                 <div style={{ fontSize: 14, color: '#0d9488', fontWeight: 600, marginTop: 2 }}>📞 {activeCallTask.patient_phone}</div>
                 <div style={{ fontSize: 13, color: '#475569', marginTop: 4 }}>
@@ -267,7 +335,7 @@ export const FollowUpQueue: React.FC<FollowUpQueueProps> = ({
                       <Icon size={18} color={isSelected ? '#ffffff' : opt.color} />
                       <div>
                         <div>{opt.label}</div>
-                        <div style={{ fontSize: 10, fontWeight: 400, opacity: 0.8 }}>{opt.desc}</div>
+                        <div style={{ fontSize: 11, fontWeight: 400, opacity: 0.8 }}>{opt.desc}</div>
                       </div>
                     </button>
                   );

@@ -33,9 +33,8 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: LayoutDashboard, roles: ['NURSE', 'RECEPTIONIST', 'DOCTOR', 'ADMIN'] },
-    { id: 'pending', label: 'Pending Follow-Ups', icon: PhoneCall, roles: ['NURSE', 'RECEPTIONIST', 'DOCTOR', 'ADMIN'], badge: 'Due' },
-    { id: 'patients', label: 'Patient Records', icon: Users, roles: ['NURSE', 'RECEPTIONIST', 'DOCTOR', 'ADMIN'] },
-    { id: 'timeline', label: 'Patient Timeline', icon: History, roles: ['NURSE', 'RECEPTIONIST', 'DOCTOR', 'ADMIN'] },
+    { id: 'pending', label: 'Follow-Ups', icon: PhoneCall, roles: ['NURSE', 'RECEPTIONIST', 'DOCTOR', 'ADMIN'], badge: 'Due' },
+    { id: 'patients', label: 'Patients', icon: Users, roles: ['NURSE', 'RECEPTIONIST', 'DOCTOR', 'ADMIN'] },
     { id: 'admin', label: 'Clinic Admin', icon: Settings, roles: ['ADMIN'] }
   ];
 

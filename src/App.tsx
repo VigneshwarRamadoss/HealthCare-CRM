@@ -55,7 +55,7 @@ const AppContent: React.FC = () => {
           />
         )}
 
-        {(currentTab === 'patients' || currentTab === 'timeline') && (
+        {currentTab === 'patients' && (
           <PatientTimeline
             onOpenNewAppointmentForPatient={() => setIsAppointmentModalOpen(true)}
           />

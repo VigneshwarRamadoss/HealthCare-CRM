@@ -135,54 +135,63 @@ export const AdminPanel: React.FC = () => {
 
       {/* Tab 1: Staff Accounts */}
       {activeTab === 'users' && (
-        <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid #e2e8f0', padding: 24 }}>
+        <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.03)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a' }}>Clinic Staff Members</h3>
             <button className="btn-primary" onClick={() => setShowAddUser(true)}>
               <UserPlus size={16} />
-              <span>Add Staff Account</span>
+              <span>Add Staff</span>
             </button>
           </div>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>
-                <th style={{ padding: '10px 14px' }}>Name</th>
-                <th style={{ padding: '10px 14px' }}>Email</th>
-                <th style={{ padding: '10px 14px' }}>Role</th>
-                <th style={{ padding: '10px 14px' }}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(u => (
-                <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '14px', fontWeight: 600, color: '#0f172a' }}>{u.full_name}</td>
-                  <td style={{ padding: '14px', color: '#475569' }}>{u.email}</td>
-                  <td style={{ padding: '14px' }}>
-                    <span className="badge" style={{ background: '#e0f2fe', color: '#0369a1' }}>
-                      {u.role}
-                    </span>
-                  </td>
-                  <td style={{ padding: '14px', color: u.is_active ? '#16a34a' : '#dc2626', fontWeight: 600 }}>
-                    {u.is_active ? 'Active' : 'Disabled'}
-                  </td>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 14 }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#64748b', fontSize: 13 }}>
+                  <th style={{ padding: '14px 20px', fontWeight: 600, whiteSpace: 'nowrap' }}>Name</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 600, whiteSpace: 'nowrap' }}>Email</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 600, whiteSpace: 'nowrap' }}>Role</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 600, whiteSpace: 'nowrap' }}>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users.map(u => (
+                  <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '16px 20px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>{u.full_name}</td>
+                    <td style={{ padding: '16px 20px', color: '#475569', whiteSpace: 'nowrap' }}>{u.email}</td>
+                    <td style={{ padding: '16px 20px', whiteSpace: 'nowrap' }}>
+                      <span className="badge" style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }}>
+                        {u.role}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px', color: u.is_active ? '#10b981' : '#dc2626', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                      {u.is_active ? 'Active' : 'Disabled'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* Tab 2: Providers */}
       {activeTab === 'providers' && (
-        <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid #e2e8f0', padding: 24 }}>
+        <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.03)' }}>
           <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 20 }}>Attending Dentists & Specialists</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
             {providers.map(pr => (
-              <div key={pr.id} style={{ border: '1px solid #e2e8f0', borderRadius: 10, padding: 18, background: '#f8fafc' }}>
-                <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a' }}>{pr.display_name}</div>
-                <div style={{ fontSize: 13, color: '#0d9488', fontWeight: 600, marginTop: 4 }}>
-                  Specialty: {pr.specialty || 'General Dentistry'}
+              <div key={pr.id} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, background: '#ffffff', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.03)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div className="patient-avatar" style={{ width: 40, height: 40, fontSize: 16 }}>
+                    {pr.display_name.replace('Dr. ', '').charAt(0)}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 16, color: '#0f172a' }}>{pr.display_name}</div>
+                    <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>
+                      {pr.specialty || 'General Dentistry'}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -192,40 +201,42 @@ export const AdminPanel: React.FC = () => {
 
       {/* Tab 3: Audit Logs */}
       {activeTab === 'audit' && (
-        <div style={{ background: '#ffffff', borderRadius: 14, border: '1px solid #e2e8f0', padding: 24 }}>
+        <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.03)' }}>
           <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 20 }}>System Audit History Stream</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13 }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#64748b', fontSize: 12, textTransform: 'uppercase' }}>
-                <th style={{ padding: '10px' }}>Timestamp</th>
-                <th style={{ padding: '10px' }}>Actor</th>
-                <th style={{ padding: '10px' }}>Action</th>
-                <th style={{ padding: '10px' }}>Entity</th>
-                <th style={{ padding: '10px' }}>Snapshot Payload</th>
-              </tr>
-            </thead>
-            <tbody>
-              {auditLogs.map(log => (
-                <tr key={log.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '12px', whiteSpace: 'nowrap', color: '#64748b' }}>
-                    {new Date(log.occurred_at).toLocaleString()}
-                  </td>
-                  <td style={{ padding: '12px', fontWeight: 600, color: '#0f172a' }}>
-                    {log.actor_name} ({log.actor_role})
-                  </td>
-                  <td style={{ padding: '12px' }}>
-                    <span style={{ fontWeight: 700, color: '#0d9488' }}>{log.action}</span>
-                  </td>
-                  <td style={{ padding: '12px', color: '#475569' }}>
-                    {log.entity_type} ({log.entity_id.slice(0, 8)}...)
-                  </td>
-                  <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: 11, color: '#334155' }}>
-                    {log.after_json || log.before_json || '-'}
-                  </td>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 14 }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#64748b', fontSize: 13 }}>
+                  <th style={{ padding: '14px 20px', fontWeight: 600, whiteSpace: 'nowrap' }}>Timestamp</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 600, whiteSpace: 'nowrap' }}>Actor</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 600, whiteSpace: 'nowrap' }}>Action</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 600, whiteSpace: 'nowrap' }}>Entity</th>
+                  <th style={{ padding: '14px 20px', fontWeight: 600 }}>Snapshot Payload</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {auditLogs.map(log => (
+                  <tr key={log.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '16px 20px', whiteSpace: 'nowrap', color: '#64748b' }}>
+                      {new Date(log.occurred_at).toLocaleString()}
+                    </td>
+                    <td style={{ padding: '16px 20px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                      {log.actor_name} <span style={{ color: '#94a3b8', fontWeight: 400 }}>({log.actor_role})</span>
+                    </td>
+                    <td style={{ padding: '16px 20px', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontWeight: 600, color: '#0f172a', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '4px 8px', borderRadius: 6 }}>{log.action}</span>
+                    </td>
+                    <td style={{ padding: '16px 20px', color: '#475569', whiteSpace: 'nowrap' }}>
+                      {log.entity_type} <span style={{ color: '#94a3b8' }}>({log.entity_id.slice(0, 8)}...)</span>
+                    </td>
+                    <td style={{ padding: '16px 20px', fontFamily: 'monospace', fontSize: 12, color: '#475569' }}>
+                      {log.after_json || log.before_json || '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
